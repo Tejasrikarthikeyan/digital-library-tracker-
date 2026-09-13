@@ -1,0 +1,11 @@
+import { BookOpen, History as HistoryIcon } from 'lucide-react';
+import { borrowHistory } from '../data/libraryData';
+import { useState } from 'react';
+
+export default function BorrowHistory({ books }) {
+    const [filter, setFilter] = useState('all');
+    const history = books.filter((book) => book.status === 'Returned' || book.status === 'Overdue');
+    const historyDetails = history.map((book) => ({ ...(borrowHistory.find((record) => record.id === book.id) || {}), ...book }));
+    const filteredHistory = filter === 'all' ? historyDetails : historyDetails.filter((book) => book.status.toLowerCase() === filter);
+    return <div className="page-content"><section className="page-title-row"><div><p className="eyebrow">Your reading timeline</p><h1>Borrow History</h1><p className="lead">A record of the books that have passed through your shelf.</p></div><div className="history-stamp"><HistoryIcon size={18} /><span><strong>{historyDetails.length}</strong> total checkouts</span></div></section><div className="history-filters" role="tablist">{[['all', 'All'], ['returned', 'Returned'], ['active', 'Active'], ['overdue', 'Overdue']].map(([id, label]) => <button key={id} className={filter === id ? 'active' : ''} onClick={() => setFilter(id)} role="tab" aria-selected={filter === id}>{label}</button>)}</div><section className="history-timeline">{filteredHistory.map((book, index) => <div className="history-row" key={book.id}><div className="history-marker"><span>{String(index + 1).padStart(2, '0')}</span><div /></div><div className="panel history-card"><div className="history-book-icon"><BookOpen size={20} /></div><div className="history-book-info"><span className="category-label">{book.category || 'Library collection'}</span><h2>{book.title}</h2><p>{book.author}</p></div><div className="history-date"><span>Borrowed</span><strong>{book.borrowDate || '—'}</strong></div><div className="history-date"><span>Returned</span><strong>{book.returnDate || '—'}</strong></div><div className="history-status"><span className={`badge status-${book.status.toLowerCase()}`}>{book.status}</span><strong>{book.fine ? `₹${book.fine}` : 'No fine'}</strong></div><span className="history-record">Recorded</span></div></div>)}</section></div>;
+}

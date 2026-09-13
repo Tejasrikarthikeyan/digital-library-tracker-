@@ -1,0 +1,13 @@
+import { BookOpen, Search, SlidersHorizontal } from 'lucide-react';
+import { useState } from 'react';
+
+export default function BookSearch({ books, query, onQueryChange, onNavigate, onUpdateBook }) {
+    const [selectedCategory, setSelectedCategory] = useState('All Categories');
+    const filteredBooks = books.filter((book) => {
+        const matchesSearch = `${book.title} ${book.author}`.toLowerCase().includes(query.toLowerCase());
+        const matchesCategory = selectedCategory === 'All Categories' || book.category === selectedCategory;
+        return matchesSearch && matchesCategory;
+    });
+    const reserveBook = (book) => onUpdateBook(book.id, { availability: 'Borrowed', status: 'Active', borrowDate: '13 Sep 2026', dueDate: '27 Sep 2026' });
+    return <div className="page-content"><section className="page-title-row"><div><p className="eyebrow">Explore the collection</p><h1>Search Books</h1><p className="lead">Find your next idea, lesson, or escape.</p></div><span className="result-count">{filteredBooks.length} results</span></section><section className="search-toolbar"><div className="search-input-wrap"><Search size={19} /><input autoFocus value={query} onChange={(event) => onQueryChange(event.target.value)} placeholder="Search books by title or author..." aria-label="Search books by title or author" /><kbd>⌘ K</kbd></div><label className="category-filter"><SlidersHorizontal size={16} /><select value={selectedCategory} onChange={(event) => setSelectedCategory(event.target.value)} aria-label="Filter by category"><option>All Categories</option><option>Programming</option><option>Computer Science</option><option>Fiction</option><option>Database</option></select></label></section><section className="search-results">{filteredBooks.length ? filteredBooks.map((book) => <article className="search-book" key={book.id}><div className="large-cover"><BookOpen size={25} /><span>{book.category}</span></div><div className="search-book-info"><span className="category-label">{book.category}</span><h2>{book.title}</h2><p>{book.author}</p><div className="search-meta"><span className={`availability ${book.availability.toLowerCase()}`}><i /> {book.availability}</span><span>•</span><span>Library shelf A-{book.id + 2}</span></div></div>{book.availability === 'Available' ? <button className="outline-button" onClick={() => reserveBook(book)}>Reserve book</button> : <button className="outline-button" onClick={() => onNavigate('books')}>View details</button>}</article>) : <div className="empty-state"><Search size={28} /><h2>No books found</h2><p>Try a different title, author, or category.</p></div>}</section></div>;
+}
